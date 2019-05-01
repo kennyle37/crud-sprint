@@ -11,14 +11,18 @@ var counter = 0;
 // Wikipedia entry on Leading Zeros and check out some of code links:
 // https://www.google.com/search?q=what+is+a+zero+padded+number%3F
 
+
 const zeroPaddedNumber = (num) => {
   return sprintf('%05d', num);
 };
 
+//read the counter, taking in a callback
 const readCounter = (callback) => {
   fs.readFile(exports.counterFile, (err, fileData) => {
+    //if error, run our callback with null and zero
     if (err) {
       callback(null, 0);
+    //if not, run our callback with the fileData being turned into a number
     } else {
       callback(null, Number(fileData));
     }
@@ -26,7 +30,9 @@ const readCounter = (callback) => {
 };
 
 const writeCounter = (count, callback) => {
+  //convert our counter to a string that is zero padded
   var counterString = zeroPaddedNumber(count);
+  //write that counter number into the file
   fs.writeFile(exports.counterFile, counterString, (err) => {
     if (err) {
       throw ('error writing counter');
@@ -38,12 +44,24 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+//save the current state of the coutner to the hard drive
+//use the readCounter and writeCounter function
+
+exports.getNextUniqueId = (callback) => {
+  readCounter((err, res) => {
+    if (err) {
+      callback(err, 0);
+    } else {
+      writeCounter(res + 1, (err, res) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, res);
+        }
+      });
+    }
+  });
 };
-
-
 
 // Configuration -- DO NOT MODIFY //////////////////////////////////////////////
 
