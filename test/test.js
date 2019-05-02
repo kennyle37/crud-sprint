@@ -61,12 +61,12 @@ describe('getNextUniqueId', () => {
 
 });
 
-describe.only('todos', () => {
+describe('todos', () => {
   before(initializeTestFiles);
   beforeEach(initializeTestCounter);
   beforeEach(cleanTestDatastore);
 
-  describe('create', () => {
+  describe.only('create', () => {
     it('should create a new file for each todo', (done) => {
       todos.create('todo1', (err, data) => {
         const todoCount = fs.readdirSync(todos.dataDir).length;
