@@ -56,13 +56,20 @@ exports.readAll = (callback) => {
   });
 };
 
+// Next, refactor the `readOne` to read a todo item from the `dataDir` 
+// based on the message's `id`. 
+// For this function, you **must read the contents of the todo item file** 
+// and respond with it to the client.
+
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+  const fileDirectory = path.join(exports.dataDir, `${id}.txt`);
+  fs.readFile(fileDirectory, 'utf8', (err, data) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(err, {id, text: data});
+    }
+  });
 };
 
 exports.update = (id, text, callback) => {
