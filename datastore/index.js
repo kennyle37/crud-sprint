@@ -19,10 +19,6 @@ exports.create = (text, callback) => {
       callback(err);
     } else {
       const dataDirectory = path.join(exports.dataDir, `${id}.txt`);
-      // console.log('THIS IS ID', id);
-      console.log('THIS IS DATADIR', exports.dataDir);
-      // console.log('THIS IS TEXT', text);
-      // console.log('THIS IS DATADIRECTORY', dataDirectory);
       fs.writeFile(dataDirectory, text, (err) => {
         if (err) {
           callback(err);
@@ -35,10 +31,29 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  // var data = _.map(items, (text, id) => {
+  //   return { id, text };
+  // });
+  // callback(null, data);
+};
+
+exports.readAll = (callback) => {
+  fs.readdir(exports.dataDir, (err, files) => {
+    if (err) {
+      callback(err);
+    } else {
+      let arr = [];
+
+      files.forEach(file => {
+        const id = file.split('.')[0];
+        arr.push({ 
+          id,
+          text: id
+        });
+      });
+      callback(null, arr);
+    }
   });
-  callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
