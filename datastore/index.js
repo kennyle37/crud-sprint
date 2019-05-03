@@ -7,12 +7,6 @@ var items = {};
 
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
-// exports.create = (text, callback) => {
-//   var id = counter.getNextUniqueId();
-//   items[id] = text;
-//   callback(null, { id, text });
-// };
-
 exports.create = (text, callback) => {
   counter.getNextUniqueId((err, id) => {
     if (err) {
@@ -28,13 +22,6 @@ exports.create = (text, callback) => {
       });
     }
   });
-};
-
-exports.readAll = (callback) => {
-  // var data = _.map(items, (text, id) => {
-  //   return { id, text };
-  // });
-  // callback(null, data);
 };
 
 exports.readAll = (callback) => {
@@ -62,8 +49,8 @@ exports.readAll = (callback) => {
 // and respond with it to the client.
 
 exports.readOne = (id, callback) => {
-  const fileDirectory = path.join(exports.dataDir, `${id}.txt`);
-  fs.readFile(fileDirectory, 'utf8', (err, data) => {
+  const directory = path.join(exports.dataDir, `${id}.txt`);
+  fs.readFile(directory, 'utf8', (err, data) => {
     if (err) {
       callback(err);
     } else {
@@ -72,14 +59,32 @@ exports.readOne = (id, callback) => {
   });
 };
 
+// exports.update = (id, text, callback) => {
+//   var item = items[id];
+//   if (!item) {
+//     callback(new Error(`No item with id: ${id}`));
+//   } else {
+//     items[id] = text;
+//     callback(null, { id, text });
+//   }
+// };
+
 exports.update = (id, text, callback) => {
-  var item = items[id];
-  if (!item) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    items[id] = text;
-    callback(null, { id, text });
-  }
+  const directory = path.join(exports.dataDir, `${id}.txt`);
+
+  fs.readFile(directory, 'utf8', (err, data) => {
+    if (err) {
+      callback(err);
+    } else {
+      fs.writeFile(directory, text, (err, res) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, {id, text});
+        }
+      });
+    }
+  });
 };
 
 exports.delete = (id, callback) => {
