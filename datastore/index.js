@@ -1,4 +1,5 @@
-const fs = require('fs');
+const Promise = require('bluebird');
+const fs = Promise.promisifyAll(require('fs'));
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
@@ -23,23 +24,35 @@ exports.create = (text, callback) => {
     }
   });
 };
+// At this point, it's time to circle back to finishing your work on `readAll`. 
+//  Next, you'll need to refactor the function. Because each todo entry is stored in its own file, 
+//  you'll end up with many async operations (`n` files = `n` async operations) 
+//  that all need to complete before you can respond to the API request. 
+//  This poses a significant challenge: your next task is to read up on promises to see how they can help you. 
+//  (Hint, you'll very likely need to make use of `Promise.all`.)
 
 exports.readAll = (callback) => {
+
   fs.readdir(exports.dataDir, (err, files) => {
     if (err) {
-      callback(err);
-    } else {
-      let arr = [];
-
-      files.forEach(file => {
-        const id = file.split('.')[0];
-        arr.push({ 
-          id,
-          text: id
-        });
-      });
-      callback(null, arr);
+      throw ('Error reading files');
     }
+    //generate a new data file
+    const data = _.map(files, (file) => {
+      const id = file.split('.')[0];
+      const directory = path.join(exports.dataDir, file);
+
+      return fs.readFileAsync(directory, 'utf8').then(text => {
+        return {
+          id,
+          text
+        };
+      });
+    });
+
+    Promise.all(data).then((file) => {
+      return callback(null, file);
+    });
   });
 };
 
@@ -79,7 +92,7 @@ exports.update = (id, text, callback) => {
 
 exports.delete = (id, callback) => {
   const directory = path.join(exports.dataDir, `${id}.txt`);
-  fs.readFile(directory, (err, res) => {
+  fs.readFile(directory, (err) => {
     if (err) {
       callback(err);
     } else {
