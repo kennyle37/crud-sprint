@@ -75,19 +75,12 @@ exports.update = (id, text, callback) => {
 
 exports.delete = (id, callback) => {
   const directory = path.join(exports.dataDir, `${id}.txt`);
-  fs.readFile(directory, (err) => {
-    if (err) {
-      callback(err);
-    } else {
-      fs.unlink(directory, (err, res) => {
-        if (err) {
-          callback(err);
-        } else {
-          callback(null, res);
-        }
-      });
-    }
-  });
+  
+  fs.readFileAsync(directory).then(res => {
+    fs.unlinkAsync(directory).then(res => {
+      callback(null, res);
+    });
+  }).catch(err => callback(err));
 };
 
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////

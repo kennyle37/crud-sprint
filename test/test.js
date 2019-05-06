@@ -155,7 +155,7 @@ describe('todos', () => {
     });
   });
 
-  describe.only('update', () => {
+  describe('update', () => {
     beforeEach((done) => {
       todos.create('original todo', done);
     });
@@ -189,7 +189,7 @@ describe('todos', () => {
     });
   });
 
-  describe('delete', () => {
+  describe.only('delete', () => {
     beforeEach((done) => {
       todos.create('delete this todo', done);
     });
