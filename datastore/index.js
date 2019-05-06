@@ -7,32 +7,24 @@ const counter = require('./counter');
 var items = {};
 
 // Public API - Fix these CRUD functions ///////////////////////////////////////
-
 exports.create = (text, callback) => {
   counter.getNextUniqueId((err, id) => {
     if (err) {
       callback(err);
     } else {
-      const dataDirectory = path.join(exports.dataDir, `${id}.txt`);
-      fs.writeFile(dataDirectory, text, (err) => {
+      const directory = path.join(exports.dataDir, `${id}.txt`);
+      fs.writeFileAsync(directory, text).then((err) => {
         if (err) {
-          callback(err);
+          throw err;
         } else {
-          callback(null, { id, text });
+          callback(null, {id, text});
         }
       });
     }
   });
 };
-// At this point, it's time to circle back to finishing your work on `readAll`. 
-//  Next, you'll need to refactor the function. Because each todo entry is stored in its own file, 
-//  you'll end up with many async operations (`n` files = `n` async operations) 
-//  that all need to complete before you can respond to the API request. 
-//  This poses a significant challenge: your next task is to read up on promises to see how they can help you. 
-//  (Hint, you'll very likely need to make use of `Promise.all`.)
 
 exports.readAll = (callback) => {
-
   fs.readdir(exports.dataDir, (err, files) => {
     if (err) {
       throw ('Error reading files');
@@ -63,31 +55,22 @@ exports.readAll = (callback) => {
 
 exports.readOne = (id, callback) => {
   const directory = path.join(exports.dataDir, `${id}.txt`);
-  fs.readFile(directory, 'utf8', (err, data) => {
-    if (err) {
-      callback(err);
-    } else {
-      callback(err, {id, text: data});
-    }
+  
+  fs.readFileAsync(directory, 'utf8').then(text => {
+    callback(null, {id, text});
+  }).catch(err => {
+    return callback(err);
   });
 };
 
 exports.update = (id, text, callback) => {
   const directory = path.join(exports.dataDir, `${id}.txt`);
 
-  fs.readFile(directory, 'utf8', (err, data) => {
-    if (err) {
-      callback(err);
-    } else {
-      fs.writeFile(directory, text, (err, res) => {
-        if (err) {
-          callback(err);
-        } else {
-          callback(null, {id, text});
-        }
-      });
-    }
-  });
+  fs.readFileAsync(directory, 'utf8').then(res => {
+    fs.writeFileAsync(directory, text).then(res => {
+      callback(null, {id, text});
+    });
+  }).catch(err => callback(err));
 };
 
 exports.delete = (id, callback) => {

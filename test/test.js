@@ -155,7 +155,7 @@ describe('todos', () => {
     });
   });
 
-  describe('update', () => {
+  describe.only('update', () => {
     beforeEach((done) => {
       todos.create('original todo', done);
     });
